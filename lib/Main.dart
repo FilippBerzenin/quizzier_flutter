@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quizzier_flutter/QuestionsData.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() => runApp(Quizzler());
 
@@ -28,17 +30,16 @@ class _QuizPageState extends State<QuizPage> {
   int questionNumber = 0;
   int correctAnswer = 0;
   int wrongAnswer = 0;
-  List<Widget> scoreKipper = [];
-  List<Questions> questions = [
-    new Questions('You can lead a cow down stairs but not up stairs.', false),
-    new Questions(
-        'Approximately one quarter of human bones are in the feet.', true),
-    new Questions('A slug\'s blood is green.', true),
-    Questions('End you have a ', true)
+  List<Widget> scoreKipper = [
+    Icon(
+      Icons.low_priority_sharp,
+      color: Colors.white,
+    )
   ];
+  List listOf0Questions = QuestionsData.questionBank;
 
   Icon checkingCorrectAnswer(bool answer) {
-    if (questions.elementAt(questionNumber).answer != answer) {
+    if (listOf0Questions.elementAt(questionNumber).answer != answer) {
       wrongAnswer++;
       return Icon(
         Icons.close,
@@ -55,7 +56,7 @@ class _QuizPageState extends State<QuizPage> {
 
   Text returnQuastion() {
     return Text(
-      questions.elementAt(questionNumber).text,
+      listOf0Questions.elementAt(questionNumber).text,
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 25.0,
@@ -64,16 +65,50 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 
-  FlatButton returnRestartButton() {
-    return FlatButton(
-      child: Text('Restart'),
-      textColor: Colors.white,
-      color: Colors.green,
-      onPressed: () {},
+  Widget returnRestartButton() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        FlatButton(
+          child: Text('Restart'),
+          textColor: Colors.white,
+          color: Colors.green,
+          onPressed: () {
+            wrongAnswer = 0;
+            correctAnswer = 0;
+            questionNumber = 0;
+            scoreKipper.clear();
+            setState(() {
+              returnQuastion();
+              scoreKipper;
+            });
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'You have a $correctAnswer correct answer',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 25.0,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  bool checkTheEnd() => questionNumber == (questions.length - 1);
+  Widget checkLastQueastion() {
+    if (checkTheEnd()) {
+      return returnRestartButton();
+    } else {
+      return returnQuastion();
+    }
+  }
+
+  bool checkTheEnd() => questionNumber == (listOf0Questions.length - 1);
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +120,7 @@ class _QuizPageState extends State<QuizPage> {
           flex: 5,
           child: Padding(
             padding: EdgeInsets.all(10.0),
-            child: Center(child: returnRestartButton()),
+            child: Center(child: checkLastQueastion()),
           ),
         ),
         Expanded(
@@ -142,18 +177,3 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 }
-
-class Questions {
-  String text = "";
-  bool answer = false;
-
-  Questions(String text, bool answer) {
-    this.text = text;
-    this.answer = answer;
-  }
-}
-/*
-question1: 'You can lead a cow down stairs but not up stairs.', false,
-question2: 'Approximately one quarter of human bones are in the feet.', true,
-question3: 'A slug\'s blood is green.', true,
-*/
